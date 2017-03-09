@@ -93,12 +93,26 @@ var dashboardTutorial = (function () {
                     .group(partitionGroup)
                     .legend(dc.legend());
 
+		// We need a `fake-group` in order to remove empty
+		// bins.  A fake group is just something that returns
+		// the bins we want from a `.all()` method
+		function remove_empty_bins(source_group) {
+		    return {
+			all:function () {
+			    return source_group.all().filter(function(d) {
+				return d.value != 0;
+			    });
+			}
+		    };
+		}
+
                 var periodGroup = period.group().reduceCount();
+		var periodGroup_filtered = remove_empty_bins(periodGroup);
                 dc.pieChart('#periodChart')
                     .innerRadius(40)
                     .width(400)
                     .dimension(period)
-                    .group(periodGroup)
+                    .group(periodGroup_filtered)
                     .legend(dc.legend());
                 // // I want to add a barChart for the price.
                 // var price = houseSales.dimension(function (d) {
