@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>5 - Creating your dashboard</title>
-    <link href="../lib/dc.min.css" rel="stylesheet">
-    <link href="../assets/css/materialize.min.css" rel="stylesheet"/>
+    <title>ALICE Run-by-run statistics</title>
+    <link href="./lib/dc.min.css" rel="stylesheet">
+    <link href="./assets/css/materialize.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
     <style>
         body {
@@ -40,47 +40,39 @@
 
 <div class="container">
 
-    <p class="flow-text">Welcome to our Housing Sales Dashboard</p>
+    <p class="flow-text">ALICE run-by-run statistics</p>
     <p class="grey-text">Filter on any of our features using our lovely visualizations below.</p>
     <br/>
 
     <div class="row">
-
         <div class="col s12">
-            <div id="salesChart">
+            <div id="nEventsChart">
                 <!--This will be filled later-->
             </div>
         </div>
-
     </div>
 
     <div class="row">
         <div class="col s4">
-            <div id="cityChart">
-
+            <div id="beamChart">
             </div>
         </div>
 
         <div class="col s4">
-            <div id="typeChart">
-
+            <div id="partitionChart">
             </div>
         </div>
-
         <div class="col s4">
-            <div id="priceChart">
-
+            <div id="periodChart">
             </div>
         </div>
-
     </div>
-
 </div>
 
 
-<script src="../lib/crossfilter.min.js"></script>
-<script src="../lib/d3.min.js"></script>
-<script src="../lib/dc.min.js"></script>
+<script src="./lib/crossfilter.min.js"></script>
+<script src="./lib/d3.min.js"></script>
+<script src="./lib/dc.min.js"></script>
 <script src="dashboard.js"></script>
 
 <script>
