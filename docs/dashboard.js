@@ -26,7 +26,7 @@ var dashboardTutorial = (function () {
     return {
         createDashboard: function () {
 
-            d3.csv('../data/trends.csv', function (data) {
+            d3.csv('./data/trends.csv', function (data) {
 
                 cleanData(data);
 		console.log(data);
