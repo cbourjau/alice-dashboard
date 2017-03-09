@@ -15,5 +15,5 @@ Local development can be done using pythons build in http server:
 ```bash
 git clone git@github.com:cbourjau/alice-dashboard.git
 cd alice-dashboard/docs
-python -m python -m SimpleHTTPServer
+python -m SimpleHTTPServer
 ```
