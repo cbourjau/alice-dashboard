@@ -42,6 +42,9 @@
       <h1>ALICE run-by-run statistics</h1>
       <h3>Filter on any of our features using our lovely visualizations below.</h3>
       <br/>
+      <!-- <button type="button" onclick="filter1()" data-loading-text="Loading..." class="btn btn-primary" autocomplete="off"> -->
+      <!-- 	Loading state -->
+      <!-- </button> -->
 
       <div class="row">
 	<div class="col s12">
@@ -58,14 +61,21 @@
           </div>
 	</div>
 	<div class="col s4">
-	  <h4>Physics partition:</h4>
-          <div id="partitionChart">
+	  <h4>Triggers:</h4>
+          <div id="triggerChart">
           </div>
 	</div>
 	<div class="col s4">
-	  <h4>LHC period::</h4>
+	  <h4>LHC period:</h4>
           <div id="periodChart">
           </div>
+	</div>
+      </div>
+      <div class="row">
+	<div class="col s4">
+	  <h4>Physics partition:</h4>
+          <div id="partitionChart">
+        </div>
 	</div>
       </div>
     </div>
@@ -74,6 +84,7 @@
     <script src="./lib/crossfilter.min.js"></script>
     <script src="./lib/d3.min.js"></script>
     <script src="./lib/dc.min.js"></script>
+    <script src="./lib/jquery.min.js"></script>
     <script src="dashboard.js"></script>
 
     <script>
