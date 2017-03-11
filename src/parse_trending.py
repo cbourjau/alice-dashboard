@@ -110,9 +110,10 @@ if __name__ == '__main__':
         years = range(2015, 2017)
         fnames = []
         for y in years:
-            # fname, _resp = urllib.urlretrieve("http://aliqaevs.web.cern.ch/aliqaevs/data/{}/trending.root".format(y),
-            #                                  "{}_trending.root".format(y))
-            fnames.append('{}_trending.root'.format(y))
+            print "Downloading data for year {}...".format(y)
+            fname, _resp = urllib.urlretrieve("http://aliqaevs.web.cern.ch/aliqaevs/data/{}/trending.root".format(y),
+                                              "/tmp/{}_trending.root".format(y))
+            fnames.append(fname)
 
         keys = compute_keys_to_keep(fnames)
         writer = csv.DictWriter(csvfile, fieldnames=keys, restval='', extrasaction='ignore')
