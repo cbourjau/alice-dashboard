@@ -105,7 +105,7 @@ def compute_keys_to_keep(fnames):
 
 
 if __name__ == '__main__':
-    with open('trends.csv', 'w') as csvfile:
+    with open('../docs/data/trends.csv', 'w') as csvfile:
         # Download relevant root files and find a common set of branch names
         years = range(2015, 2017)
         fnames = []
