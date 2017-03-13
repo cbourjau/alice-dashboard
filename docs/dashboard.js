@@ -56,6 +56,24 @@ var dashboardTutorial = (function () {
 	// 'CVHMV0MMSL-B-NOPF-ALL',
 	// 'CVHMV0MMSL-B-NOPF-ALLNOTRD',
     ];
+
+    function parseDateTime(input, format) {
+	format = format || 'yyyy-MM-dd HH:mm:ss'; // default format
+	var parts = input.match(/(\d+)/g), 
+	    i = 0, fmt = {};
+	// extract date-part indexes from the format
+	format.replace(/(yyyy|dd|MM|HH|mm|ss)/g, function(part) { fmt[part] = i++; });
+
+	// Note that dates start at 0! This returns time as UTC
+	return new Date(parts[fmt['yyyy']],
+			parts[fmt['MM']] - 1,
+			parts[fmt['dd']],
+			parts[fmt['HH']],
+			parts[fmt['mm']],
+			parts[fmt['ss']]
+		       );
+    }
+
     
     var cleanData = function (data) {
         data.forEach(function (d, i) {
@@ -65,8 +83,8 @@ var dashboardTutorial = (function () {
             // We can also convert values, parse floats etc.
             d.fill = parseInt(d.fill);
             d['lumi_seen'] = parseFloat(d['lumi_seen']);
-	    d.timeStart = new Date(d.timeStart);
-	    d.timeStart = new Date(d.timeEnd);
+	    d.timeStart = parseDateTime(d.timeStart);
+	    d.timeEnd = parseDateTime(d.timeEnd);
 	    d.run_duration = parseFloat(d.run_duration) / 60.0 / 60.0;
 	    // some runs seem to have corrupted durations
 	    if (d.run_duration > 1000) {
@@ -128,7 +146,6 @@ var dashboardTutorial = (function () {
         createDashboard: function () {
 
             d3.csv('./data/trends.csv', function (data) {
-
                 cleanData(data);
 		xfitter_runs = crossfilter(data);
                 var runNumber = xfitter_runs.dimension(function (d) {
@@ -136,9 +153,6 @@ var dashboardTutorial = (function () {
                 });
                 var fillNumber = xfitter_runs.dimension(function (d) {
                     return d.fill;
-                });
-		var l2a = xfitter_runs.dimension(function (d) {
-                    return d.class_l2a;
                 });
 		var timeStart = xfitter_runs.dimension(function (d) {
                     return d.timeStart;
@@ -191,7 +205,6 @@ var dashboardTutorial = (function () {
 		    .group(timeStart_duration_group, "Run duration [h]")
 		    .renderHorizontalGridLines(true);
 
-
                 var beamGroup = beam.group().reduceCount();
                 var beamChart = dc.rowChart('#beamChart');
 		beamChart
@@ -200,12 +213,6 @@ var dashboardTutorial = (function () {
 		    .elasticX(true)
                     .group(beamGroup);
 		beamChart.xAxis().ticks(4);
-
-		var detectorsGroup = detectors.group().reduceCount();
-                dc.rowChart('#detectorsChart')
-                    .width(300)
-                    .dimension(detectors)
-                    .group(detectorsGroup);
 
 		var triggersGroup = regroup(trigger0, triggers);
 		var triggerChart = dc.rowChart("#triggerChart");
@@ -253,6 +260,6 @@ var dashboardTutorial = (function () {
 		add_x_axis_lable(triggerChart, 'Triggers after L2A [x10^6]');
             });
         }
-    }
+    };
 })();
 
