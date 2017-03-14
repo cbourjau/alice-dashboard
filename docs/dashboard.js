@@ -223,6 +223,8 @@ var dashboardTutorial = (function () {
 		    .elasticX(true);
 		// Set at most for ordinate lables; note: xAxis() is not chainable!
 		triggerChart.xAxis().ticks(4);
+		// Disable filtering when clicking on some elements of this graph
+		triggerChart.filter = function() {};
 
                 var partitionGroup = partition.group().reduceCount();
                 dc.pieChart('#partitionChart')
