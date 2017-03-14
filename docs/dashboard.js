@@ -92,7 +92,7 @@ var dashboardTutorial = (function () {
 	    }
 	    triggers.forEach(function(t) {
 		// In millions
-		d[t] = d[t] ? parseInt(d[t]) / 1e6 : 0.0;
+		d[t] = d[t] ? Math.round(parseInt(d[t]) / 1e6) : 0;
 	    });
         });
     };
