@@ -3,7 +3,7 @@ A dashboard for run-by-run statistics of the ALICE detector at CERN. This projec
 
 # Development
 ## Parsing raw data to `csv` files
-This project pulls in data from various sources and compiles it into a single run-by-run `csv` file. 
+This project pulls in data from various sources and compiles it into a single run-by-run `csv` file. We did not yet settle on the technology used for this step. We experimented with a c++ and a python version. The latter has external dependencies but can currently be found in pull request #10 (branch `root2csv_python`).
 
 ## Front end
 The fron end is base off a great tutorial by Eamonn Maguire ([link](https://thor-project.github.io/dashboard-tutorial/)).
