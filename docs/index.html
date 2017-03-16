@@ -37,72 +37,88 @@
     </style>
   </head>
   <body>
+      <div class="container">
+	  <div class="row">
+	      <div class="col-md-1"></div>
+	      <div class="col-md-10">
+		  <h1>ALICE run-by-run statistics</h1>
+		  <h2>
+		      <small>
+			  Filter on various features using the visualizations below and propose improvements at our github <a href="https://github.com/cbourjau/alice-dashboard">page</a>.
+		      </small>
+		  </h2>
+		  <br/>
+	      </div>
+	      <div class="col-md-1"></div>
+	  </div>
+	  <div class="row">
+	      <div class="col-md-12">
+		  <div id="nEventsChart">
+		      <!--This will be filled later-->
+		  </div>
+	      </div>
+	  </div>
 
-    <div class="container">
-      <h1>ALICE run-by-run statistics</h1>
-      <h2>
-	<small>
-	  Filter on various features using the visualizations below and propose improvements at our github <a href="https://github.com/cbourjau/alice-dashboard">page</a>.
-	</small>
-      </h2>
-      <br/>
-      <!-- <button type="button" onclick="filter1()" data-loading-text="Loading..." class="btn btn-primary" autocomplete="off"> -->
-      <!-- 	Loading state -->
-      <!-- </button> -->
-
-      <div class="row">
-	<div class="col s12">
-          <div id="nEventsChart">
-            <!--This will be filled later-->
-          </div>
-	</div>
+	  <div class="row">
+	      <div class="col-md-4">
+		  <h4>Triggers:</h4>
+		  <div id="triggerChart"></div>
+	      </div>
+	      <div class="col-md-4">
+		  <h4>LHC period:</h4>
+		  <div id="periodChart"></div>
+	      </div>
+	  </div>
+	  <div class="row">
+	      <div class="col-md-12">
+		  <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+		      <div class="panel panel-default">
+			  <div class="panel-heading" role="tab" id="headingOne">
+			      <h4 class="panel-title">
+				  <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+				      Advanced Charts:
+				  </a>
+			      </h4>
+			  </div>
+			  <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+			      <div class="panel-body">
+				  <div class="row">
+				      <div class="col s4">
+					  <h4>Physics partition:</h4>
+					  <div id="partitionChart">
+					  </div>
+				      </div>
+				      <div class="col s4">
+					  <h4>Beam status:</h4>
+					  <div id="beamChart">
+					  </div>
+				      </div>
+				  </div>
+			      </div>
+			  </div>
+		      </div>
+		  </div>
+	      </div>
+	  </div>
       </div>
+      <script src="./lib/crossfilter.min.js"></script>
+      <script src="./lib/d3.min.js"></script>
+      <script src="./lib/dc.min.js"></script>
+      <script src="./lib/jquery.min.js"></script>
+      <script src="dashboard.js"></script>
 
-      <div class="row">
-	<div class="col s4">
-	  <h4>Beam status:</h4>
-          <div id="beamChart">
-          </div>
-	</div>
-	<div class="col s4">
-	  <h4>Triggers:</h4>
-          <div id="triggerChart">
-          </div>
-	</div>
-	<div class="col s4">
-	  <h4>LHC period:</h4>
-          <div id="periodChart">
-          </div>
-	</div>
-      </div>
-      <div class="row">
-	<div class="col s4">
-	  <h4>Physics partition:</h4>
-          <div id="partitionChart">
-        </div>
-	</div>
-      </div>
-    </div>
+      <script>
+       dashboardTutorial.createDashboard();
+      </script>
 
+      <!-- Latest compiled and minified CSS -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-    <script src="./lib/crossfilter.min.js"></script>
-    <script src="./lib/d3.min.js"></script>
-    <script src="./lib/dc.min.js"></script>
-    <script src="./lib/jquery.min.js"></script>
-    <script src="dashboard.js"></script>
+      <!-- Optional theme -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
-    <script>
-      dashboardTutorial.createDashboard();
-    </script>
-
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+      <!-- Latest compiled and minified JavaScript -->
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
   </body>
 </html>

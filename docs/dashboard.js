@@ -176,24 +176,6 @@ var dashboardTutorial = (function () {
 		    .reduceSum(function(d) {
 			return d.lumi_seen;
 		    });
-		// var timelineChart = dc.compositeChart("#nEventsChart");
-		// timelineChart
-                //     .width(1000)
-                //     .x(d3.time.scale().domain([minDate, maxDate]))
-                //     .dimension(timeStart)
-                //     .xAxisLabel('Start of run')
-                //     .yAxisLabel('Duration [h]')
-		//     .brushOn(true) // Selectable region
-		//     .elasticX(true)
-		//     .compose([
-		// 	dc.barChart(timelineChart)
-		// 	    .group(timeStart_duration_group, "Run duration [h]"),
-		// 	dc.lineChart(timelineChart)
-		// 	    .group(timeStart_lumi_group, "Luminosity")
-		// 	    .ordinalColors(["orange"])
-                //             .useRightYAxis(true)
-		//     ])
-		//     .renderHorizontalGridLines(true);
 
 		var timelineChart = dc.barChart("#nEventsChart");
 		 timelineChart
@@ -210,6 +192,7 @@ var dashboardTutorial = (function () {
 		beamChart
                     .width(300)
                     .dimension(beam)
+		    .filter("STABLE BEAMS")
 		    .elasticX(true)
                     .group(beamGroup);
 		beamChart.xAxis().ticks(4);
@@ -231,6 +214,7 @@ var dashboardTutorial = (function () {
                     .innerRadius(40)
                     .width(400)
                     .dimension(partition)
+		    .filter("PHYSICS_1")
                     .group(partitionGroup)
                     .legend(dc.legend());
 
