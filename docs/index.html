@@ -68,6 +68,22 @@
 		  <h4>LHC period:</h4>
 		  <div id="periodChart"></div>
 	      </div>
+	      <div class="col-md-4">
+		  <a class='reset'
+		     href='javascript:detectors.filterFunction(function(val) {return (val.indexOf("ITS") !== -1);});dc.redrawAll();'>
+		      ITS
+		  </a>
+	      </div>
+	      <table id="test" class="table table-condensed table-striped">
+		  <thead>
+		      <tr>
+			  <th>Period name</th>
+			  <th># Run</th>
+			  <th>System</th>
+			  <th>Energy</th>
+		      </tr>
+		  </thead>
+	      </table>
 	  </div>
 	  <div class="row">
 	      <div class="col-md-12">

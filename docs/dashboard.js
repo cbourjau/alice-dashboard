@@ -1,4 +1,5 @@
-var xfitter_runs;
+var xfitter_runs, detectors;
+
 
 var dashboardTutorial = (function () {
 
@@ -160,11 +161,11 @@ var dashboardTutorial = (function () {
 		var partition = xfitter_runs.dimension(function (d) {return d.partition;});
 		var period = xfitter_runs.dimension(function (d) {return d.lhcPeriod;});
 		var beam = xfitter_runs.dimension(function (d) {return d.lhcState;});
-		var detectors = xfitter_runs.dimension(function (d) {return d.activeDetectors;});
+		detectors = xfitter_runs.dimension(function (d) {return d.activeDetectors;});
 		// We need to have some trigger axis, but it does not
 		// matter since we will not filter on it
 		var trigger0 = xfitter_runs.dimension(function (d) {return d[triggers[0]];});
-		
+
 		var minDate = new Date(fillNumber.bottom(1)[0].timeStart);
                 var maxDate = new Date(fillNumber.top(1)[0].timeStart);
 
@@ -222,23 +223,49 @@ var dashboardTutorial = (function () {
 		// bins.  A fake group is just something that returns
 		// the bins we want from a `.all()` method
 		function remove_empty_bins(source_group) {
+		    function non_zero_pred(d) {
+			return d.value.number != 0;
+		    }
 		    return {
 			all:function () {
-			    return source_group.all().filter(function(d) {
-				return d.value != 0;
-			    });
+			    return source_group.all().filter(non_zero_pred);
+			},
+			top: function(n) {
+			    return source_group
+				.top(Infinity)
+				.filter(non_zero_pred)
+				.slice(0, n);
 			}
 		    };
 		}
 
-                var periodGroup = period.group().reduceCount();
-		var periodGroup_filtered = remove_empty_bins(periodGroup);
-                dc.pieChart('#periodChart')
-                    .innerRadius(40)
-                    .width(400)
-                    .dimension(period)
-                    .group(periodGroup_filtered)
-                    .legend(dc.legend());
+		groupedDimension = remove_empty_bins(period.group().reduce(
+		    function (p, v) {
+			++p.number;
+			// p.total += +v.Speed;
+			// p.avg = Math.round(p.total / p.number);
+			return p;
+		    },
+		    function (p, v) {
+			--p.number;
+			// np.total -= +v.Speed;
+			// p.avg = (p.number == 0) ? 0 : Math.round(p.total / p.number);
+			return p;
+		    },
+		    function () {
+			return {number: 0/*, total: 0, avg: 0*/};
+		    }));
+
+		dc.dataTable("#test")
+		    .dimension(groupedDimension)
+		    .group(function(d) { return "<strong>" + d.key.slice(0, 5) + "</strong>"; })
+		    .columns([function (d) { return d.key; },
+			      function (d) { return d.value.number; },
+			      function (d) { return "oijn"; },
+			      function (d) { return "oijn"; },
+			     ])
+		    .sortBy(function (d) { return d.key; })
+		    .order(d3.descending);
 
                 dc.renderAll();
 
