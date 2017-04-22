@@ -146,7 +146,7 @@ var dashboardTutorial = (function () {
     return {
         createDashboard: function () {
 
-            d3.csv('./data/trends.csv', function (data) {
+            d3.csv('./data/minimal.csv', function (data) {
                 cleanData(data);
 		xfitter_runs = crossfilter(data);
                 var runNumber = xfitter_runs.dimension(function (d) {
@@ -242,18 +242,22 @@ var dashboardTutorial = (function () {
 		groupedDimension = remove_empty_bins(period.group().reduce(
 		    function (p, v) {
 			++p.number;
-			// p.total += +v.Speed;
-			// p.avg = Math.round(p.total / p.number);
+			if (p.beamType != v.beamType) {
+			    console.log("Encountered variation of beamType within period!");
+			}
+			p.beamType = v.beamType;
+			if (p.beamEnergy != v.beamEnergy) {
+			    console.log("Encountered variation in energy within period!");
+			}
+			p.beamEnergy = v.beamEnergy;
 			return p;
 		    },
 		    function (p, v) {
 			--p.number;
-			// np.total -= +v.Speed;
-			// p.avg = (p.number == 0) ? 0 : Math.round(p.total / p.number);
 			return p;
 		    },
 		    function () {
-			return {number: 0/*, total: 0, avg: 0*/};
+			return {number: 0, beamType: "NA", beamEnergy: "NA"};
 		    }));
 
 		dc.dataTable("#test")
@@ -261,8 +265,8 @@ var dashboardTutorial = (function () {
 		    .group(function(d) { return "<strong>" + d.key.slice(0, 5) + "</strong>"; })
 		    .columns([function (d) { return d.key; },
 			      function (d) { return d.value.number; },
-			      function (d) { return "oijn"; },
-			      function (d) { return "oijn"; },
+			      function (d) { return d.value.beamType; },
+			      function (d) { return d.value.beamEnergy; },
 			     ])
 		    .sortBy(function (d) { return d.key; })
 		    .order(d3.descending);
