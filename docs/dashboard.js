@@ -2,61 +2,10 @@ var xfitter_runs, detectors;
 
 
 var dashboardTutorial = (function () {
-
-    // var parseDate = function (d) {
-    //     return new Date('20' + d.substring(6),
-    //         d.substring(3, 5),
-    //         d.substring(0, 2));
-    // };
-
-    triggers = [
-	// 'C0VHM-B-NOPF-CENT',
-	// 'C0VHM-B-NOPF-CENTNOPMD',
-	// 'C0VHM-B-NOPF-CENTNOTRD',
-	// 'C0VHM-B-NOPF-MUFAST',
-	// 'CINT7-B-NOPF-ALL',
-	// 'CINT7-B-NOPF-ALLNOTRD',
-	// 'CINT7-B-NOPF-CALOFAST',
-	'CINT7-B-NOPF-CENT',
-	'CINT7-B-NOPF-CENTNOTRD',
-	// 'CINT7-B-NOPF-EMCALPHOS',
-	// 'CINT7-B-NOPF-FAST',
-	// 'CINT7-B-NOPF-FASTNOTRD',
-	'CINT7-B-NOPF-MUFAST',
-	// 'CINT7-B-NOPF-MUON',
-	// 'CINT7-B-NOPF-PHOSCPV',
-	// 'CINT7-B-NOPF-UFAST',
-	// 'CINT7PHM-B-NOPF-CENTNOPMD',
-	// 'CINT7PHM-B-NOPF-CENTNOTRD',
-	// 'CINT8PHM-B-NOPF-CENTNOTRD',
-	// 'CPER7PHM-B-NOPF-CENTNOPMD',
-	// 'CPHI7PHM-B-NOPF-CALOFAST',
-	// 'CPHI7PHM-B-NOPF-CENT',
-	// 'CPHI7PHM-B-NOPF-CENTNOPMD',
-	// 'CPHI7PHM-B-NOPF-CENTNOTRD',
-	// 'CSHM7-B-NOPF-CENT',
-	// 'CSHM7-B-NOPF-CENTNOTRD',
-	// 'CSHM7-B-spd1-CENT',
-	// 'CSHM7-B-spd1-CENTNOTRD',
-	// 'CVHMEJ1-B-NOPF-CENTNOPMD',
-	// 'CVHMPHH-B-NOPF-CENTNOPMD',
-	// 'CVHMSH1-B-NOPF-CENT',
-	// 'CVHMSH2-B-NOPF-CENT',
-	// 'CVHMSH2-B-NOPF-CENTNOTRD',
-	// 'CVHMSH2-B-SPD1-CENT',
-	// 'CVHMSH2-B-SPD1-CENTNOTRD',
-	// 'CVHMSH2MSL-B-NOPF-ALL',
-	// 'CVHMSH2MSL-B-NOPF-ALLNOTRD',
-	'CVHMV0M-B-NOPF-CENT',
-	'CVHMV0M-B-NOPF-CENTNOTRD',
-	// 'CVHMV0M-B-SPD1-CENT',
-	// 'CVHMV0M-B-SPD1-CENTNOTRD',
-	'CVHMV0M-B-SPD2-CENT',
-	// 'CVHMV0M-B-SPD2-CENTNOTRD',
-	// 'CVHMV0M-B-spd1-CENT',
-	// 'CVHMV0MMSL-B-NOPF-ALL',
-	// 'CVHMV0MMSL-B-NOPF-ALLNOTRD',
-    ];
+    triggers = [];
+    for (var i=0; i < 32; i++) {
+	triggers.push("VEventBit" + i);
+    }
 
     function parseDateTime(input, format) {
 	format = format || 'yyyy-MM-dd HH:mm:ss'; // default format
@@ -164,7 +113,7 @@ var dashboardTutorial = (function () {
 		detectors = xfitter_runs.dimension(function (d) {return d.activeDetectors;});
 		// We need to have some trigger axis, but it does not
 		// matter since we will not filter on it
-		var trigger0 = xfitter_runs.dimension(function (d) {return d[triggers[0]];});
+		var trigger0 = xfitter_runs.dimension(function (d) {return d["VEventBit0"];});
 
 		var minDate = new Date(fillNumber.bottom(1)[0].timeStart);
                 var maxDate = new Date(fillNumber.top(1)[0].timeStart);
@@ -198,7 +147,7 @@ var dashboardTutorial = (function () {
                     .group(beamGroup);
 		beamChart.xAxis().ticks(4);
 
-		var triggersGroup = regroup(trigger0, triggers);
+		var triggersGroup = regroup(trigger0, triggers.slice(0, 8));
 		var triggerChart = dc.rowChart("#triggerChart");
 		triggerChart
                     .width(300)
