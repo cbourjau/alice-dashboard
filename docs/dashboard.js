@@ -1,4 +1,18 @@
-var xfilter_runs, detectors;
+var xfilter_runs, beamType;
+var beam_type_filters = ['p-p', 'p-Pb', 'Pb-Pb'];
+
+function toggle_beamtype_filter(filter_str) {
+    // is the filter string alreay in the filter?
+    if (beam_type_filters.indexOf(filter_str) < 0) {
+	beam_type_filters.push(filter_str);
+    } else {
+	beam_type_filters.splice(beam_type_filters.indexOf(filter_str), 1);
+    }
+    console.log(beam_type_filters);
+    beamType.filter(function (d) {return beam_type_filters.indexOf(d) >= 0;});
+    dc.redrawAll();
+}
+
 var trigger_dict = {
     "VEventBit0": {
 	"description": "V0A | V0C | SPD minimum bias trigger",
@@ -219,20 +233,6 @@ var dashboardTutorial = (function () {
             .text(displayText);
     };
 
-    function rotate_x_ticks(chart) {
-	var height = 50;
-	chart.svg()
-	    .append("g")
-	    .attr("class", "x axis")
-	    .attr("transform", "translate(0," + height + ")")
-	    .call(chart.xAxis())
-	    .selectAll("text")  
-	    .style("text-anchor", "end")
-	    .attr("dx", "-.8em")
-	    .attr("dy", ".15em")
-	    .attr("transform", "rotate(-65)");
-    }
-
     // We need a `fake-group` in order to remove empty
     // bins.  A fake group is just something that returns
     // the bins we want from a `.all()` method
@@ -270,7 +270,7 @@ var dashboardTutorial = (function () {
 		var timeEnd = xfilter_runs.dimension(function (d) {
                     return d.DAQ_time_end;
                 });
-
+		beamType = xfilter_runs.dimension(function (d) {return d.beamType;});
 		var partition = xfilter_runs.dimension(function (d) {return d.partition;});
 		var period = xfilter_runs.dimension(function (d) {return d.LHCperiod;});
 		var beam = xfilter_runs.dimension(function (d) {return d.LHCBeamMode;});
@@ -382,7 +382,7 @@ var dashboardTutorial = (function () {
 			+ d.key.slice(3, 5);
 		    return "<a href=" + url + ">Trending files</a>";
 		}
-		dc.dataTable("#test")
+		dc.dataTable("#summary-table")
 		    .dimension(groupedDimension)
 		    .group(function(d) { return "<strong>" + d.key.slice(0, 5) + "</strong>"; })
 		    .columns([function (d) { return d.key; },
