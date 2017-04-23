@@ -19,7 +19,8 @@ def logbook_file_iter(start_year, end_year):
             online_fname = "logbook.root"
             r = requests.get(url + online_fname)
             if r.status_code != 200:
-                break
+                # Some periods leave out a letter...
+                continue
             with open("/tmp/{}_{}".format(period, online_fname), 'wb') as f:
                 f.write(r.content)
                 fname = (f.name)
@@ -33,12 +34,25 @@ def trending_file_iter(start_year, end_year):
     years = range(start_year, end_year + 1)
     for y in years:
         print "Downloading data for year {}...".format(y)
-        url = "http://aliqaevs.web.cern.ch/aliqaevs/data/{}/".format(y)
         online_fname = "trending.root"
+        url = "http://aliqaevs.web.cern.ch/aliqaevs/data/{}/".format(y)
         r = requests.get(url + online_fname)
-        if r.status_code != 200:
-            break
-        with open("/tmp/{}_{}".format(y, online_fname), 'wb') as f:
-            f.write(r.content)
-            fname = (f.name)
-        yield fname
+        if r.status_code == 200:
+            with open("/tmp/{}_{}".format(y, online_fname), 'wb') as f:
+                f.write(r.content)
+                fname = (f.name)
+            yield fname
+        else:
+            # Periods befor 2013 have one file per period and different passes
+            for char in string.lowercase:
+                period = 'LHC{}{}'.format(y - 2000, char)
+                # The pass is either 2 or 4
+                for pass_num in range(5, 0, -1):
+                    url_period = url + '{}/pass{}/'.format(period, pass_num)
+                    r = requests.get(url_period + online_fname)
+                    if r.status_code == 200:
+                        with open("/tmp/{}_{}".format(y, online_fname), 'wb') as f:
+                            f.write(r.content)
+                            fname = (f.name)
+                        yield fname
+                        break

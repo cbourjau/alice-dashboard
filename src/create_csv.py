@@ -28,12 +28,13 @@ def write_to_csv(dicts, fname):
 
 if __name__ == '__main__':
     logbook_dicts = []
-    for fname in logbook_file_iter(2015, 2015):
+    for fname in logbook_file_iter(2010, 2017):
         print fname
         logbook_dicts += parse_logbook(fname)
 
     trending_dicts = []
-    for fname in trending_file_iter(2015, 2015):
+    for fname in trending_file_iter(2010, 2017):
+        print fname
         trending_dicts += parse_trending(fname)
 
     merged = merge_dictionaries(logbook_dicts, trending_dicts)

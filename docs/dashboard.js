@@ -6,24 +6,6 @@ var dashboardTutorial = (function () {
     for (var i=0; i < 32; i++) {
 	triggers.push("VEventBit" + i);
     }
-
-    function parseDateTime(input, format) {
-	format = format || 'yyyy-MM-dd HH:mm:ss'; // default format
-	var parts = input.match(/(\d+)/g), 
-	    i = 0, fmt = {};
-	// extract date-part indexes from the format
-	format.replace(/(yyyy|dd|MM|HH|mm|ss)/g, function(part) { fmt[part] = i++; });
-
-	// Note that dates start at 0! This returns time as UTC
-	return new Date(parts[fmt['yyyy']],
-			parts[fmt['MM']] - 1,
-			parts[fmt['dd']],
-			parts[fmt['HH']],
-			parts[fmt['mm']],
-			parts[fmt['ss']]
-		       );
-    }
-
     
     var cleanData = function (data) {
         data.forEach(function (d, i) {
@@ -33,9 +15,10 @@ var dashboardTutorial = (function () {
             // We can also convert values, parse floats etc.
             d.fill = parseInt(d.fill);
             d['lumi_seen'] = parseFloat(d['lumi_seen']);
-	    d.timeStart = parseDateTime(d.timeStart);
-	    d.timeEnd = parseDateTime(d.timeEnd);
-	    d.run_duration = parseFloat(d.run_duration) / 60.0 / 60.0;
+	    // Initialize datetime with milliseconds; DAQ time is in sec
+	    d.DAQ_time_start = new Date(d.DAQ_time_start * 1000);
+	    d.DAQ_time_end = new Date(d.DAQ_time_end * 1000);
+	    d.run_duration = d.runDuration / 60.0 / 60.0;
 	    // some runs seem to have corrupted durations
 	    if (d.run_duration > 1000) {
 		d.run_duration = 0;
@@ -105,18 +88,22 @@ var dashboardTutorial = (function () {
                     return d.fill;
                 });
 		var timeStart = xfitter_runs.dimension(function (d) {
-                    return d.timeStart;
+                    return d.DAQ_time_start;
                 });
+		var timeEnd = xfitter_runs.dimension(function (d) {
+                    return d.DAQ_time_end;
+                });
+
 		var partition = xfitter_runs.dimension(function (d) {return d.partition;});
-		var period = xfitter_runs.dimension(function (d) {return d.lhcPeriod;});
-		var beam = xfitter_runs.dimension(function (d) {return d.lhcState;});
+		var period = xfitter_runs.dimension(function (d) {return d.LHCperiod;});
+		var beam = xfitter_runs.dimension(function (d) {return d.LHCBeamMode;});
 		detectors = xfitter_runs.dimension(function (d) {return d.activeDetectors;});
 		// We need to have some trigger axis, but it does not
 		// matter since we will not filter on it
 		var trigger0 = xfitter_runs.dimension(function (d) {return d["VEventBit0"];});
-
-		var minDate = new Date(fillNumber.bottom(1)[0].timeStart);
-                var maxDate = new Date(fillNumber.top(1)[0].timeStart);
+		console.log(timeStart.bottom(1)[0]);
+		var minDate = new Date(timeStart.bottom(1)[0].DAQ_time_start);
+		var maxDate = new Date(timeEnd.top(1)[0].DAQ_time_end);
 
                 var timeStart_duration_group = timeStart.group()
 		    .reduceSum(function(d) {

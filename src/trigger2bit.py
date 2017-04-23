@@ -2,6 +2,12 @@ import os
 
 from rootpy.io import root_open
 
+import logging
+# Suppress waring messages about runs not being found that it has saved a .png
+logging.basicConfig(level=logging.ERROR)
+logging.disable(level=logging.WARNING)
+logging.getLogger("W-AliOADBContainer").setLevel(logging.ERROR)
+
 file_path = '$ALICE_PHYSICS/OADB/COMMON/PHYSICSSELECTION/data/physicsSelection.root'
 physSel = root_open(os.path.expandvars(file_path)).physSel
 
@@ -9,7 +15,7 @@ physSel = root_open(os.path.expandvars(file_path)).physSel
 def _get_ps_for_run(run_dict):
     run = run_dict['run']
     try:
-        if run_dict['lhcState'] != 'STABLE BEAMS':
+        if run_dict['LHCBeamMode'] != 'STABLE BEAMS':
             raise ValueError("Not a stable beam")
     except KeyError:
         raise ValueError("No LHC status for this run")
