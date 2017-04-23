@@ -53,6 +53,8 @@
 	  </div>
 	  <div class="row">
 	      <div class="col-md-12">
+		  <h4>All recorded runs and their duration</h4>
+		  <h4><small>You can select a region here</small></h4>
 		  <div id="nEventsChart">
 		      <!--This will be filled later-->
 		  </div>
@@ -60,27 +62,26 @@
 	  </div>
 
 	  <div class="row">
-	      <div class="col-md-4">
-		  <h4>Triggers:</h4>
+	      <div class="col-md-12">
+		  <h4>Approximate number of triggers in the above selected range</h4>
 		  <div id="triggerChart"></div>
 	      </div>
-	      <div class="col-md-4">
-		  <h4>LHC period:</h4>
-		  <div id="periodChart"></div>
-	      </div>
-	      <div class="col-md-4">
-		  <a class='reset'
-		     href='javascript:detectors.filterFunction(function(val) {return (val.indexOf("ITS") !== -1);});dc.redrawAll();'>
-		      ITS
-		  </a>
-	      </div>
+	      <!-- <div class="col-md-4">
+		   <a class='reset'
+		   href='javascript:detectors.filterFunction(function(val) {return (val.indexOf("ITS") !== -1);});dc.redrawAll();'>
+		   ITS
+		   </a>
+		   </div> -->
 	      <table id="test" class="table table-condensed table-striped">
 		  <thead>
 		      <tr>
 			  <th>Period name</th>
 			  <th># Run</th>
 			  <th>System</th>
-			  <th>Energy</th>
+			  <th>Energy per beam</th>
+			  <th>RCT</th>
+			  <th>Logbook files</th>
+			  <th>Trending files</th>
 		      </tr>
 		  </thead>
 	      </table>
