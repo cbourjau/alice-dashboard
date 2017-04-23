@@ -1,4 +1,4 @@
-var xfitter_runs, detectors;
+var xfilter_runs, detectors;
 
 
 var dashboardTutorial = (function () {
@@ -80,27 +80,27 @@ var dashboardTutorial = (function () {
 
             d3.csv('./data/minimal.csv', function (data) {
                 cleanData(data);
-		xfitter_runs = crossfilter(data);
-                var runNumber = xfitter_runs.dimension(function (d) {
+		xfilter_runs = crossfilter(data);
+                var runNumber = xfilter_runs.dimension(function (d) {
                     return d.run;
                 });
-                var fillNumber = xfitter_runs.dimension(function (d) {
+                var fillNumber = xfilter_runs.dimension(function (d) {
                     return d.fill;
                 });
-		var timeStart = xfitter_runs.dimension(function (d) {
+		var timeStart = xfilter_runs.dimension(function (d) {
                     return d.DAQ_time_start;
                 });
-		var timeEnd = xfitter_runs.dimension(function (d) {
+		var timeEnd = xfilter_runs.dimension(function (d) {
                     return d.DAQ_time_end;
                 });
 
-		var partition = xfitter_runs.dimension(function (d) {return d.partition;});
-		var period = xfitter_runs.dimension(function (d) {return d.LHCperiod;});
-		var beam = xfitter_runs.dimension(function (d) {return d.LHCBeamMode;});
-		detectors = xfitter_runs.dimension(function (d) {return d.activeDetectors;});
+		var partition = xfilter_runs.dimension(function (d) {return d.partition;});
+		var period = xfilter_runs.dimension(function (d) {return d.LHCperiod;});
+		var beam = xfilter_runs.dimension(function (d) {return d.LHCBeamMode;});
+		detectors = xfilter_runs.dimension(function (d) {return d.activeDetectors;});
 		// We need to have some trigger axis, but it does not
 		// matter since we will not filter on it
-		var trigger0 = xfitter_runs.dimension(function (d) {return d["VEventBit0"];});
+		var trigger0 = xfilter_runs.dimension(function (d) {return d["VEventBit0"];});
 		console.log(timeStart.bottom(1)[0]);
 		var minDate = new Date(timeStart.bottom(1)[0].DAQ_time_start);
 		var maxDate = new Date(timeEnd.top(1)[0].DAQ_time_end);
