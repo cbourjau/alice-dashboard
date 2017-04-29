@@ -8,9 +8,14 @@ function toggle_beamtype_filter(filter_str) {
     } else {
 	beam_type_filters.splice(beam_type_filters.indexOf(filter_str), 1);
     }
-    console.log(beam_type_filters);
     beamType.filter(function (d) {return beam_type_filters.indexOf(d) >= 0;});
     dc.redrawAll();
+}
+
+function get_collumn_width(id) {
+    var bb = document.querySelector(id).parentNode.getBoundingClientRect();
+    width = bb.right - bb.left;
+    return width;
 }
 
 var trigger_dict = {
@@ -143,7 +148,6 @@ var dashboardTutorial = (function () {
     var trigger_aliases = trigger_bits_with_alias.map(function(bit) {
 	return trigger_dict[bit]['aka'][0];
     });
-    console.log(trigger_aliases);
     for (var i=0; i < 32; i++) {
 	trigger_bits.push("VEventBit" + i);
     }
@@ -154,12 +158,11 @@ var dashboardTutorial = (function () {
             d.run = parseInt(d.run);
 
             // We can also convert values, parse floats etc.
-            d.fill = parseInt(d.fill);
             d['lumi_seen'] = parseFloat(d['lumi_seen']);
 	    // Initialize datetime with milliseconds; DAQ time is in sec
-	    d.DAQ_time_start = new Date(d.DAQ_time_start * 1000);
-	    d.DAQ_time_end = new Date(d.DAQ_time_end * 1000);
-	    d.run_duration = d.runDuration / 60.0 / 60.0;
+	    d.daq_time_start = new Date(d.daq_time_start * 1000);
+	    d.daq_time_end = new Date(d.daq_time_end * 1000);
+	    d.run_duration = d.run_duration / 60.0 / 60.0;
 	    // some runs seem to have corrupted durations
 	    if (d.run_duration > 1000) {
 		d.run_duration = 0;
@@ -255,32 +258,29 @@ var dashboardTutorial = (function () {
 
     return {
         createDashboard: function () {
-            d3.csv('./data/minimal.csv', function (data) {
+            d3.csv('./data/trends.min.csv', function (data) {
                 cleanData(data);
 		xfilter_runs = crossfilter(data);
                 var runNumber = xfilter_runs.dimension(function (d) {
                     return d.run;
                 });
-                var fillNumber = xfilter_runs.dimension(function (d) {
-                    return d.fill;
-                });
 		var timeStart = xfilter_runs.dimension(function (d) {
-                    return d.DAQ_time_start;
+                    return d.daq_time_start;
                 });
 		var timeEnd = xfilter_runs.dimension(function (d) {
-                    return d.DAQ_time_end;
+                    return d.daq_time_end;
                 });
-		beamType = xfilter_runs.dimension(function (d) {return d.beamType;});
+		beamType = xfilter_runs.dimension(function (d) {return d.beam_type;});
 		var partition = xfilter_runs.dimension(function (d) {return d.partition;});
-		var period = xfilter_runs.dimension(function (d) {return d.LHCperiod;});
-		var beam = xfilter_runs.dimension(function (d) {return d.LHCBeamMode;});
-		detectors = xfilter_runs.dimension(function (d) {return d.activeDetectors;});
+		var period = xfilter_runs.dimension(function (d) {return d.lhc_period;});
+		var beam = xfilter_runs.dimension(function (d) {return d.lhc_beam_mode;});
+		detectors = xfilter_runs.dimension(function (d) {return d.active_detectors;});
 		// We need to have some trigger axis, but it does not
 		// matter since we will not filter on it
 		var trigger0 =
 		    xfilter_runs.dimension(function (d) {return d[trigger_aliases[0]];});
-		var minDate = new Date(timeStart.bottom(1)[0].DAQ_time_start);
-		var maxDate = new Date(timeEnd.top(1)[0].DAQ_time_end);
+		var minDate = new Date(timeStart.bottom(1)[0].daq_time_start);
+		var maxDate = new Date(timeEnd.top(1)[0].daq_time_end);
 
                 var timeStart_duration_group = timeStart.group()
 		    .reduceSum(function(d) {
@@ -292,7 +292,8 @@ var dashboardTutorial = (function () {
 		    });
 
 		var timelineChart = dc.barChart("#nEventsChart");
-		 timelineChart
+		timelineChart
+		    .width(get_collumn_width("#nEventsChart"))
                     .x(d3.time.scale().domain([minDate, maxDate]))
                     .dimension(timeStart)
                     .xAxisLabel('Start of run')
@@ -303,7 +304,7 @@ var dashboardTutorial = (function () {
                 var beamGroup = beam.group().reduceCount();
                 var beamChart = dc.rowChart('#beamChart');
 		beamChart
-                    .width(300)
+                    .width(get_collumn_width('#beamChart'))
                     .dimension(beam)
 		    .filter("STABLE BEAMS")
 		    .elasticX(true)
@@ -313,7 +314,7 @@ var dashboardTutorial = (function () {
 		var triggersGroup = regroup(trigger0, trigger_aliases);
 		var triggerChart = dc.barChart("#triggerChart");
 		triggerChart
-                    // .width(600)
+                    .width(get_collumn_width("#triggerChart"))
 		    .x(d3.scale.ordinal())
 		    .xUnits(dc.units.ordinal)
                     .dimension(trigger0)
@@ -321,7 +322,7 @@ var dashboardTutorial = (function () {
 		    .elasticY(true)
 		    .xAxisLabel('Trigger alias from AliVEvent')
 		    .yAxisLabel('Triggers after L2A [x10^6]')
-		    .margins({ top: 10, left: 50, right: 10, bottom: 90 })
+		    .margins({ top: 10, left: 55, right: 10, bottom: 90 })
 		    .renderlet(function (chart)
 			       {chart
 				.selectAll("g.x text")
@@ -338,7 +339,7 @@ var dashboardTutorial = (function () {
                 var partitionGroup = partition.group().reduceCount();
                 dc.pieChart('#partitionChart')
                     .innerRadius(40)
-                    .width(400)
+                    .width(get_collumn_width('#partitionChart'))
                     .dimension(partition)
 		    .filter("PHYSICS_1")
                     .group(partitionGroup)
@@ -347,14 +348,7 @@ var dashboardTutorial = (function () {
 		groupedDimension = remove_empty_bins(period.group().reduce(
 		    function (p, v) {
 			++p.number;
-			if (p.beamType != v.beamType) {
-			    // console.log("Encountered variation of beamType within period!");
-			}
-			p.beamType = v.beamType;
-			if (p.beamEnergy != v.beamEnergy) {
-			    // console.log("Encountered variation in energy within period!");
-			}
-			p.beamEnergy = v.beamEnergy;
+			p.beam_energy = v.beam_energy;
 			return p;
 		    },
 		    function (p, v) {
@@ -362,7 +356,7 @@ var dashboardTutorial = (function () {
 			return p;
 		    },
 		    function () {
-			return {number: 0, beamType: "NA", beamEnergy: "NA"};
+			return {number: 0, beam_type: "NA", beam_energy: "NA"};
 		    }));
 
 		function create_rct_link(d) {
@@ -383,12 +377,13 @@ var dashboardTutorial = (function () {
 		    return "<a href=" + url + ">Trending files</a>";
 		}
 		dc.dataTable("#summary-table")
+		    .width(get_collumn_width("#summary-table"))
 		    .dimension(groupedDimension)
 		    .group(function(d) { return "<strong>" + d.key.slice(0, 5) + "</strong>"; })
 		    .columns([function (d) { return d.key; },
 			      function (d) { return d.value.number; },
-			      function (d) { return d.value.beamType; },
-			      function (d) { return d.value.beamEnergy; },
+			      function (d) { return d.value.beam_type; },
+			      function (d) { return d.value.beam_energy; },
 			      create_rct_link,
 			      create_logbook_link,
 			      create_trending_link
