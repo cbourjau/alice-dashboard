@@ -349,10 +349,13 @@ var dashboardTutorial = (function () {
 		    function (p, v) {
 			++p.number;
 			p.beam_energy = v.beam_energy;
+			p.beam_type = v.beam_type;
 			return p;
 		    },
 		    function (p, v) {
 			--p.number;
+			p.beam_energy = v.beam_energy;
+			p.beam_type = v.beam_type;
 			return p;
 		    },
 		    function () {
