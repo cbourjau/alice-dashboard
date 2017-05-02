@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <title>ALICE Run-by-run statistics</title>
-    <link href="./lib/dc.min.css" rel="stylesheet">
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/dc/2.0.2/dc.min.css" rel="stylesheet">
     <link href="./assets/css/materialize.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
     <style>
@@ -44,7 +44,7 @@
 	  <div class="row">
 	      <div class="col-md-1"></div>
 	      <div class="col-md-10">
-		  <h1>ALICE run-by-run statistics</h1>
+		  <h1>ALICE data-taking statistics</h1>
 		  <h2>
 		      <small>
 			  Filter on various features using the visualizations below and propose improvements at our github <a href="https://github.com/cbourjau/alice-dashboard">page</a>.
@@ -54,13 +54,15 @@
 	      </div>
 	      <div class="col-md-1"></div>
 	  </div>
+	  <ul class="nav nav-tabs">
+	      <li role="presentation" class="active"><a href="index.html">Overview</a></li>
+	      <li role="presentation"><a href="period.html">Period details</a></li>
+	  </ul>
 	  <div class="row">
 	      <div class="col-md-10">
 		  <h4>All recorded runs and their duration</h4>
 		  <h4><small>You can select a region here</small></h4>
-		  <div id="nEventsChart">
-		      <!--This will be filled later-->
-		  </div>
+		  <div id="nEventsChart"></div>
 	      </div>
 	      <div class="col-md-2">
 		  <h4>Collision system</h4>
@@ -85,7 +87,7 @@
 	  <div class="row">
 	      <div class="col-md-12">
 		  <h4>Approximate number of triggers in the above selected range</h4>
-		  <div id="triggerChart"></div>
+		  <div id="triggerChart" style="width:100%;"></div>
 	      </div>
 	  </div>
 	  <div class="row">
@@ -121,13 +123,11 @@
 				  <div class="row">
 				      <div class="col s4">
 					  <h4>Physics partition:</h4>
-					  <div id="partitionChart">
-					  </div>
+					  <div id="partitionChart" style="width:100%;"></div>
 				      </div>
 				      <div class="col s4">
 					  <h4>Beam status:</h4>
-					  <div id="beamChart">
-					  </div>
+					  <div id="beamChart" style="width:100%;"></div>
 				      </div>
 				  </div>
 			      </div>
@@ -139,7 +139,7 @@
       </div>
       <script src="./lib/crossfilter.min.js"></script>
       <script src="./lib/d3.min.js"></script>
-      <script src="./lib/dc.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dc/2.0.2/dc.min.js"></script>
       <script src="./lib/jquery.min.js"></script>
       <script src="dashboard.js"></script>
 

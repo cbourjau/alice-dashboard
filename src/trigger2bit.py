@@ -1,21 +1,36 @@
+import sys
+import contextlib
 import os
+import io
+import logging
 
 from rootpy.io import root_open
 
-import logging
-# Suppress waring messages about runs not being found that it has saved a .png
+import models
+from pony import orm
+
+
+# Suppress waring messages about runs not being found
 logging.basicConfig(level=logging.ERROR)
 logging.disable(level=logging.WARNING)
-logging.getLogger("W-AliOADBContainer").setLevel(logging.ERROR)
+# logging.getLogger("W-AliOADBContainer").setLevel(logging.ERROR)
+
+
+@contextlib.contextmanager
+def nostdout():
+    save_stdout = sys.stdout
+    sys.stdout = io.BytesIO()
+    yield
+    sys.stdout = save_stdout
+
 
 file_path = '$ALICE_PHYSICS/OADB/COMMON/PHYSICSSELECTION/data/physicsSelection.root'
 physSel = root_open(os.path.expandvars(file_path)).physSel
 
 
-def _get_ps_for_run(run_dict):
-    run = run_dict['run']
+def _get_ps_for_run(run, lhc_beam_mode, beam_type):
     try:
-        if run_dict['LHCBeamMode'] != 'STABLE BEAMS':
+        if lhc_beam_mode != 'STABLE BEAMS':
             raise ValueError("Not a stable beam")
     except KeyError:
         raise ValueError("No LHC status for this run")
@@ -23,73 +38,64 @@ def _get_ps_for_run(run_dict):
     # not all runs are automatically recognized. If it is not
     # found, the returned index is 1 :P
     # If thats the case, fish out the default config depending on the beam type
-    if physSel.GetIndexForRun(run) >= 0:
-        return physSel.GetObjArray()[physSel.GetIndexForRun(run)]
+    with nostdout():
+        ps_idx = physSel.GetIndexForRun(run)
+    if ps_idx >= 0:
+        return physSel.GetObjArray()[ps_idx]
     else:
         defaults = [el for el in physSel.GetDefaultList()]
         try:
             # Beam type is populated form the logbook
-            if run_dict.get('beamType') == 'Pb-Pb':
+            if beam_type == 'Pb-Pb':
                 default = next(el for el in defaults if 'PbPb' in el.GetName())
                 return default
-            elif run_dict.get('beamType') == 'p-p':
+            elif beam_type == 'p-p':
                 # Yes, these are upper case "P"s, don't act surprised!
                 return next(el for el in defaults if 'PP' in el.GetName())
             else:
                 raise ValueError(
-                    "No defaults found for run {} of type".format(run, run_dict['beamType']))
+                    ("No defaults found for run {} of type {}"
+                     .format(run, beam_type)))
         except KeyError:
             raise KeyError("`beamType` field is not present in the given dict")
 
 
-def augment_with_collision_trigger_class(run_dict):
-    """
-    Add AliVEvent trigger alias information to a run.
+def map_trigger_strings_to_bits():
+    def map_bits_to_strings(run, lhc_beam_mode, beam_type):
+        try:
+            ps_run = _get_ps_for_run(run, lhc_beam_mode, beam_type)
+        except:
+            return {}
 
-    Dict containing a `run` and a `beamType` (used for fall-back to
-    defaults) field and trigger-string fields which should be
-    translated to trigger alias bits. The translation works as
-    follows: The run number is used to retrive the mapping between
-    strings and trigger bits.  Then, for each trigger bit, the
-    recorded number of events is queried via the corresponding trigger
-    strings in the given `run_dict`. The numbers from the trigger
-    strings is **added**. This might not be the correct way to go
-    about it since the trigger strings are not necessarily
-    orthogonal(?)
+        bit_to_string_map = {}
+        n_trg_bits = ps_run.GetNTriggerBits()
+        for ibit in range(n_trg_bits):
+            # The provided TList seems to always have one element;
+            # _one_ comma separated string of triggers
+            # eg '+CEMC7-B-NOPF-CENTNOPMD,CDMC7-B-NOPF-CENTNOPMD &1024 *9'
+            triggers_in_run = []
+            for s in ps_run.GetCollTrigClass(ibit):
+                # TObjString to str
+                ss = str(s).split('&')[0].split(',')
+                ss = [s_dirty.strip(' ').strip('+') for s_dirty in ss]
+                triggers_in_run += ss
+            if triggers_in_run:
+                bit_to_string_map[str(ibit)] = triggers_in_run
+        return bit_to_string_map
 
-    Parameters
-    ----------
-    run_dict : dict
-        Probably parsed from the `trending.root` files and `logbook.root`.
-
-    Returns
-    -------
-    dict :
-        Input dictionary augmented with aliased trigger information
-    """
-    try:
-        ps_run = _get_ps_for_run(run_dict)
-    except:
-        return run_dict
-
-    n_trg_bits = ps_run.GetNTriggerBits()
-
-    for ibit in range(n_trg_bits):
-        # The provided TList seems to always have one element;
-        # _one_ comma separated string of triggers
-        # eg '+CEMC7-B-NOPF-CENTNOPMD,CDMC7-B-NOPF-CENTNOPMD &1024 *9'
-        triggers_in_run = []
-        trigger_alias = 'VEventBit{}'.format(ibit)
-        run_dict[trigger_alias] = 0
-        for s in ps_run.GetCollTrigClass(ibit):
-            # TObjString to str
-            s = str(s)
-            ss = s.split('&')[0].split(',')
-            ss = [s_dirty.strip(' ').strip('+') for s_dirty in ss]
-            triggers_in_run += ss
-
-        # Are any of this bit's trigger strings in the given run?
-        for trg_string in triggers_in_run:
-            run_dict[trigger_alias] += run_dict.get(trg_string, 0)
-
-    return run_dict
+    q = orm.select((l.run, l.lhc_beam_mode, l.beam_type)
+                   for t in models.Trendentry
+                   for l in models.Logentry if (t.run == l.run and
+                                                "STABLE" in l.lhc_beam_mode))
+    for run, lhc_beam_mode, beam_type in q:
+        t_strings = models.TriggerString.select(lambda ts: ts.run == run)
+        # Each key has a list of trigger strings
+        for key, ss in map_bits_to_strings(run, lhc_beam_mode, beam_type).items():
+            with orm.db_session:
+                t_bit = models.TriggerBit.get_or_create(bit=int(key), run=run)[0]
+                for s_entry in t_strings.filter(lambda s_entry: s_entry.string in ss):
+                    t_bit.triggerstrings.add(s_entry)
+                try:
+                    orm.commit()
+                except orm.core.TransactionIntegrityError:
+                    continue
