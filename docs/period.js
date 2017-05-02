@@ -24,7 +24,7 @@ function create_trigger_plots(fname) {
 	    run_group = run_dim.group().reduceSum(function(d) { return +d.counts; });
 	var n_runs = run_group.all().length;
 	var heat_map = dc.heatMap("#Triggers");
-	var height = n_runs * 10 > 500 ? n_runs * 10 : 500;
+	var height = n_runs * 10 > 1500 ? n_runs * 10 : 1500;
 	heat_map
 	    .width(get_collumn_width("#Triggers"))
 	    .height(height)
