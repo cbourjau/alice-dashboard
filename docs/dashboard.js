@@ -379,6 +379,22 @@ var dashboardTutorial = (function () {
 			+ d.key.slice(3, 5);
 		    return "<a href=" + url + ">Trending files</a>";
 		}
+		function create_dpg_link(d) {
+		    function period_pdg_approved(d) {
+			const periods = ["LHC15l", "LHC15n", "LHC15o", "LHC16f", "LHC16g", "LHC16i",
+					 "LHC16k", "LHC16l", "LHC16o", "LHC16q", "LHC16r", "LHC16s",
+					 "LHC16t"
+					];
+			return periods.indexOf(d.key) >= 0;
+		    }
+		    const url = "https://twiki.cern.ch/twiki/bin/viewauth/ALICE/AliDPGRunLists";
+		    if (period_pdg_approved(d)) {
+			return '<a href ="' + url + '"><span class="glyphicon glyphicon glyphicon-ok" aria-hidden="true"></span></a>';
+		    } else {
+			return "";
+		    }
+		    
+		}
 		dc.dataTable("#summary-table")
 		    .width(get_collumn_width("#summary-table"))
 		    .dimension(groupedDimension)
@@ -389,7 +405,8 @@ var dashboardTutorial = (function () {
 			      function (d) { return d.value.beam_energy; },
 			      create_rct_link,
 			      create_logbook_link,
-			      create_trending_link
+			      create_trending_link,
+			      create_dpg_link
 			     ])
 		    .sortBy(function (d) { return d.key; })
 		    .size(100)
