@@ -12,7 +12,7 @@ def logbook_file_iter(start_year, end_year):
     """
     years = range(start_year, end_year + 1)
     for y in years:
-        print "Downloading data for year {}...".format(y)
+        print "Downloading Logbook for year {}...".format(y)
         for char in string.lowercase:
             period = 'LHC{}{}'.format(y - 2000, char)
             url = "http://aliqamodafs.web.cern.ch/aliqamodafs/data/{}/{}/".format(y, period)
@@ -33,7 +33,7 @@ def trending_file_iter(start_year, end_year):
     """
     years = range(start_year, end_year + 1)
     for y in years:
-        print "Downloading data for year {}...".format(y)
+        print "Downloading trending.root for year {}...".format(y)
         online_fname = "trending.root"
         url = "http://aliqaevs.web.cern.ch/aliqaevs/data/{}/".format(y)
         r = requests.get(url + online_fname)

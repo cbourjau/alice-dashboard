@@ -30,7 +30,6 @@ if __name__ == '__main__':
 
     trending_dicts = []
     for fname in trending_file_iter(2010, 2016):
-        print fname
         trending_dicts += parse_trending(fname)
 
     map_trigger_strings_to_bits()
