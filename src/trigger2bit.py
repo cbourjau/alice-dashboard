@@ -64,6 +64,7 @@ def _get_ps_for_run(run, lhc_beam_mode, beam_type):
             raise KeyError("`beamType` field is not present in the given dict")
 
 
+@orm.db_session
 def map_trigger_strings_to_bits():
     def map_bits_to_strings(run, lhc_beam_mode, beam_type):
         try:
@@ -84,7 +85,7 @@ def map_trigger_strings_to_bits():
                 ss = [s_dirty.strip(' ').strip('+') for s_dirty in ss]
                 triggers_in_run += ss
             if triggers_in_run:
-                bit_to_string_map[str(ibit)] = triggers_in_run
+                bit_to_string_map[ibit] = triggers_in_run
         return bit_to_string_map
 
     q = orm.select((l.run, l.lhc_beam_mode, l.beam_type)
@@ -92,17 +93,10 @@ def map_trigger_strings_to_bits():
                    for l in models.Logentry if (t.run == l.run and
                                                 "STABLE" in l.lhc_beam_mode))
     # cache some data. This is done in order to avoid a nested db_session
-    with orm.db_session:
-        cache = [query_el for query_el in q]
-    for run, lhc_beam_mode, beam_type in cache:
+    for run, lhc_beam_mode, beam_type in q:
         t_strings = models.TriggerString.select(lambda ts: ts.run == run)
         # Each key has a list of trigger strings
-        for key, ss in map_bits_to_strings(run, lhc_beam_mode, beam_type).items():
-            with orm.db_session:
-                t_bit = models.TriggerBit.get_or_create(bit=int(key), run=run)[0]
-                for s_entry in t_strings.filter(lambda s_entry: s_entry.string in ss):
-                    t_bit.triggerstrings.add(s_entry)
-                try:
-                    orm.commit()
-                except orm.core.TransactionIntegrityError:
-                    continue
+        for t_bit, ss in map_bits_to_strings(run, lhc_beam_mode, beam_type).items():
+            t_bit_inst = models.TriggerBit(bit=t_bit, run=run)
+            # create relation between this bit and the trigger strings associated with it
+            t_bit_inst.triggerstrings.add(t_strings.filter(lambda s_entry: s_entry.string in ss))
