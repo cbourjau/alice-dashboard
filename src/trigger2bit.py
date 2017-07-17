@@ -91,7 +91,10 @@ def map_trigger_strings_to_bits():
                    for t in models.Trendentry
                    for l in models.Logentry if (t.run == l.run and
                                                 "STABLE" in l.lhc_beam_mode))
-    for run, lhc_beam_mode, beam_type in q:
+    # cache some data. This is done in order to avoid a nested db_session
+    with orm.db_session:
+        cache = [query_el for query_el in q]
+    for run, lhc_beam_mode, beam_type in cache:
         t_strings = models.TriggerString.select(lambda ts: ts.run == run)
         # Each key has a list of trigger strings
         for key, ss in map_bits_to_strings(run, lhc_beam_mode, beam_type).items():
