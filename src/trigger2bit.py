@@ -5,6 +5,7 @@ import io
 import logging
 
 from rootpy.io import root_open
+import ROOT
 
 import models
 from pony import orm
@@ -14,6 +15,9 @@ from pony import orm
 logging.basicConfig(level=logging.ERROR)
 logging.disable(level=logging.WARNING)
 # logging.getLogger("W-AliOADBContainer").setLevel(logging.ERROR)
+
+# Set the loglevel to kError
+ROOT.AliLog.SetGlobalLogLevel(1)
 
 
 @contextlib.contextmanager
@@ -38,8 +42,8 @@ def _get_ps_for_run(run, lhc_beam_mode, beam_type):
     # not all runs are automatically recognized. If it is not
     # found, the returned index is 1 :P
     # If thats the case, fish out the default config depending on the beam type
-    with nostdout():
-        ps_idx = physSel.GetIndexForRun(run)
+    # with nostdout():
+    ps_idx = physSel.GetIndexForRun(run)
     if ps_idx >= 0:
         return physSel.GetObjArray()[ps_idx]
     else:
