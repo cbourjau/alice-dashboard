@@ -21,7 +21,11 @@ def parse_trending(fname):
     """
     with root_open(fname) as f:
         dicts = []
-        for run in f.trending:
+        # In 2017, a branch with histograms was added which breaks this iteration
+        # Disabling this branch
+        tree = f.trending
+        fix_trending_tree(tree)
+        for run in tree:
             trigger_strs_in_run = [c.GetName() for c in run.classes]
             # dictionary mapping trigger strings to their counts for the current run
             trigger_dict = {}
@@ -121,3 +125,26 @@ def parse_trigger_aliases(fname):
                     d[key] = val
             dicts.append(d)
         return dicts
+
+
+def fix_trending_tree(t):
+    """
+    Fix branches in 2017 trees which seem to be empty/broken
+    """
+    bad_branches = [
+        "meanV0MOn", "meanV0MOf", "meanOFO", "meanTKL",
+        "meanErrV0MOn", "meanErrV0MOf", "meanErrOFO",
+        "meanErrTKL", "meanV0MOnHM", "meanV0MOfHM",
+        "meanOFOHM", "meanTKLHM", "meanErrV0MOnHM",
+        "meanErrV0MOfHM", "meanErrOFOHM", "meanErrTKLHM",
+        "thresholdV0M", "aV0MOnVsOfVal", "bV0MOnVsOfVal",
+        "aV0MOnVsOfErr", "bV0MOnVsOfErr", "aSPDOnVsOfVal",
+        "bSPDOnVsOfVal", "aSPDOnVsOfErr", "bSPDOnVsOfErr",
+        "aV0MOnVsOfOADB", "bV0MOnVsOfOADB", "aSPDOnVsOfOADB",
+        "bSPDOnVsOfOADB",
+        "hHistStat"  # <- This one breaks the iteration over elements!
+    ]
+    branches_in_tree = [b.GetName() for b in t.GetListOfBranches()]
+    for b in bad_branches:
+        if b in branches_in_tree:
+            t.SetBranchStatus(b, 0)

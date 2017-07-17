@@ -160,7 +160,8 @@ def convert(name):
     return s1
 
 
-db.bind('sqlite', ':memory:')
+# db.bind('sqlite', ':memory:')
+db.bind('sqlite', 'db.sqlite', create_db=True)
 db.generate_mapping(create_tables=True)
 
 

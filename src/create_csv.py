@@ -1,13 +1,8 @@
-from collections import defaultdict
-
 import csv
 import json
 
 from pony import orm
 
-from parsers import parse_logbook, parse_trending
-from file_iterators import trending_file_iter, logbook_file_iter
-from trigger2bit import map_trigger_strings_to_bits
 from filters import dashboard_keys, keep_keys
 
 import models
@@ -24,17 +19,11 @@ def write_to_csv(dicts, fname):
 
 
 @orm.db_session
-def main():
-    logbook_dicts = []
-    for fname in logbook_file_iter(2010, 2016):
-        logbook_dicts += parse_logbook(fname)
-
-    trending_dicts = []
-    for fname in trending_file_iter(2010, 2016):
-        trending_dicts += parse_trending(fname)
-
-    map_trigger_strings_to_bits()
-
+def create_csv():
+    """
+    Create the csv file from the existing database. See models.py for
+    db configurations.
+    """
     # runs with trigger bits
     tb_runs = orm.select(tb.run for tb in models.TriggerBit)
     q = orm.select((te, lb)
@@ -113,4 +102,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    create_csv()
