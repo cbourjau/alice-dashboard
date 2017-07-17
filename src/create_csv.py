@@ -23,7 +23,8 @@ def write_to_csv(dicts, fname):
             writer.writerow(run_dict)
 
 
-if __name__ == '__main__':
+@orm.db_session
+def main():
     logbook_dicts = []
     for fname in logbook_file_iter(2010, 2016):
         logbook_dicts += parse_logbook(fname)
@@ -34,6 +35,7 @@ if __name__ == '__main__':
 
     map_trigger_strings_to_bits()
 
+    # runs with trigger bits
     tb_runs = orm.select(tb.run for tb in models.TriggerBit)
     q = orm.select((te, lb)
                    for te in models.Trendentry
@@ -108,3 +110,7 @@ if __name__ == '__main__':
                                                        for k, v in bit2string.items()]}
     with open("triggers.json", 'w') as f:
         json.dump(bit2string_period, f, sort_keys=True, indent=2)
+
+
+if __name__ == '__main__':
+    main()
