@@ -7,9 +7,9 @@ def create_db():
     """
     Create the database with information from various sources.
     """
-    for fname in logbook_file_iter(2010, 2016):
+    for fname in logbook_file_iter(2010, 2017):
         parse_logbook(fname)
-    for fname in trending_file_iter(2010, 2016):
+    for fname in trending_file_iter(2010, 2017):
         parse_trending(fname)
     map_trigger_strings_to_bits()
 
