@@ -41,7 +41,6 @@ def create_csv():
         run_dict = te.to_dict()
         periods.add(lb.lhc_period)
         run_dict.update(lb.to_dict())
-        {}.update
         for tb in orm.select(tb for tb in models.TriggerBit if tb.run == te.run):
             run_dict["VEventBit{}".format(tb.bit)] = orm.sum(tb.triggerstrings.counts)
         run_dicts.append(run_dict)
